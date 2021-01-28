@@ -3,6 +3,7 @@ using Discord.Commands;
 using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,7 +20,6 @@ namespace FASBot
         private CommandService _commands;
 
         private readonly IServiceProvider _services;
-        private string token = "ODAzMzc5MjIwNjUwMTMxNTA2.YA87NA.NGQWrOT28_6gwka2-7Y_48-4W8k";
 
         private Program()
         {
@@ -40,6 +40,7 @@ namespace FASBot
             // Centralize the logic for commands into a separate method.
             await InitCommands();
 
+            var token = File.ReadAllText("token.txt");
             // Login and connect.
             await _client.LoginAsync(TokenType.Bot,
                 // < DO NOT HARDCODE YOUR TOKEN >
@@ -58,7 +59,6 @@ namespace FASBot
 
             // Some alternative options would be to keep your token in an Environment Variable or a standalone file.
             // var token = Environment.GetEnvironmentVariable("NameOfYourEnvironmentVariable");
-            // var token = File.ReadAllText("token.txt");
             // var token = JsonConvert.DeserializeObject<AConfigurationClass>(File.ReadAllText("config.json")).Token;
 
             await _client.LoginAsync(TokenType.Bot, token);
