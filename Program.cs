@@ -7,6 +7,8 @@ using System.IO;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord.Net.Rest;
+using Discord.Rest;
 
 namespace FASBot
 {
@@ -23,7 +25,11 @@ namespace FASBot
 
         private Program()
         {
-            _client = new DiscordSocketClient();
+            var socketConfig = new DiscordSocketConfig
+            {
+                RestClientProvider = DefaultRestClientProvider.Create(useProxy: true)
+            };
+            _client = new DiscordSocketClient(socketConfig);
             _commands = new CommandService();
 
             _commandHandler = new CommandHandler(_client, _commands);
