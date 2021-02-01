@@ -14,8 +14,11 @@ namespace FASBot
 {
 	public class Program
 	{
-		public static void Main(string[] args)
-			=> new Program().MainAsync().GetAwaiter().GetResult();
+        public static async Task Main(string[] args)
+        {
+            var prog = new Program(); 
+            await prog.MainAsync();
+        }
 
         private DiscordSocketClient _client;
         private CommandHandler _commandHandler;
