@@ -1,29 +1,33 @@
-﻿using Discord;
-using Discord.Commands;
-using Discord.WebSocket;
-using Microsoft.Extensions.DependencyInjection;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Discord;
+using Discord.Commands;
+using Discord.Net.Rest;
+using Discord.WebSocket;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace FASBot
 {
-	public class Program
-	{
-		public static void Main(string[] args)
-			=> new Program().MainAsync().GetAwaiter().GetResult();
-
+    public class FasBotFramework
+    {
         private DiscordSocketClient _client;
         private CommandHandler _commandHandler;
         private CommandService _commands;
 
         private readonly IServiceProvider _services;
-        private string token = "ODAzMzc5MjIwNjUwMTMxNTA2.YA87NA.NGQWrOT28_6gwka2-7Y_48-4W8k";
 
-        private Program()
+        public FasBotFramework()
         {
-            _client = new DiscordSocketClient();
+            var socketConfig = new DiscordSocketConfig
+            {
+                RestClientProvider = DefaultRestClientProvider.Create(useProxy: true)
+            };
+            _client = new DiscordSocketClient(socketConfig);
             _commands = new CommandService();
 
             _commandHandler = new CommandHandler(_client, _commands);
@@ -40,6 +44,7 @@ namespace FASBot
             // Centralize the logic for commands into a separate method.
             await InitCommands();
 
+            var token = File.ReadAllText("token.txt");
             // Login and connect.
             await _client.LoginAsync(TokenType.Bot,
                 // < DO NOT HARDCODE YOUR TOKEN >
@@ -58,7 +63,6 @@ namespace FASBot
 
             // Some alternative options would be to keep your token in an Environment Variable or a standalone file.
             // var token = Environment.GetEnvironmentVariable("NameOfYourEnvironmentVariable");
-            // var token = File.ReadAllText("token.txt");
             // var token = JsonConvert.DeserializeObject<AConfigurationClass>(File.ReadAllText("config.json")).Token;
 
             await _client.LoginAsync(TokenType.Bot, token);
@@ -69,29 +73,6 @@ namespace FASBot
 
             // Block this task until the program is closed.
             await Task.Delay(-1);
-        }
-
-        private Task Log(LogMessage msg)
-		{
-			Console.WriteLine(msg.ToString());
-			return Task.CompletedTask;
-		}
-
-        // If any services require the client, or the CommandService, or something else you keep on hand,
-        // pass them as parameters into this method as needed.
-        // If this method is getting pretty long, you can seperate it out into another file using partials.
-        private static IServiceProvider ConfigureServices()
-        {
-            var map = new ServiceCollection()
-                // Repeat this for all the service classes
-                // and other dependencies that your commands might need.
-                //.AddSingleton(new SomeServiceClass());
-                ;
-
-            // When all your required services are in the collection, build the container.
-            // Tip: There's an overload taking in a 'validateScopes' bool to make sure
-            // you haven't made any mistakes in your dependency graph.
-            return map.BuildServiceProvider();
         }
 
         private async Task InitCommands()
@@ -140,6 +121,29 @@ namespace FASBot
                 //if (!result.IsSuccess && result.Error != CommandError.UnknownCommand)
                 //    await msg.Channel.SendMessageAsync(result.ErrorReason);
             }
+        }
+
+        private Task Log(LogMessage msg)
+        {
+            Console.WriteLine(msg.ToString());
+            return Task.CompletedTask;
+        }
+
+        // If any services require the client, or the CommandService, or something else you keep on hand,
+        // pass them as parameters into this method as needed.
+        // If this method is getting pretty long, you can seperate it out into another file using partials.
+        private static IServiceProvider ConfigureServices()
+        {
+            var map = new ServiceCollection()
+                // Repeat this for all the service classes
+                // and other dependencies that your commands might need.
+                //.AddSingleton(new SomeServiceClass());
+                ;
+
+            // When all your required services are in the collection, build the container.
+            // Tip: There's an overload taking in a 'validateScopes' bool to make sure
+            // you haven't made any mistakes in your dependency graph.
+            return map.BuildServiceProvider();
         }
     }
 }
