@@ -25,7 +25,7 @@ namespace FASBot
         {
             var socketConfig = new DiscordSocketConfig
             {
-                RestClientProvider = DefaultRestClientProvider.Create(useProxy: true)
+                RestClientProvider = DefaultRestClientProvider.Create(useProxy: false)
             };
             _client = new DiscordSocketClient(socketConfig);
             _commands = new CommandService();
@@ -82,6 +82,7 @@ namespace FASBot
             // You also need to pass your 'IServiceProvider' instance now,
             // so make sure that's done before you get here.
             await _commands.AddModulesAsync(Assembly.GetEntryAssembly(), _services);
+
             // Or add Modules manually if you prefer to be a little more explicit:
             //await _commands.AddModuleAsync<SomeModule>(_services);
             // Note that the first one is 'Modules' (plural) and the second is 'Module' (singular).
@@ -138,6 +139,7 @@ namespace FASBot
                 // Repeat this for all the service classes
                 // and other dependencies that your commands might need.
                 //.AddSingleton(new SomeServiceClass());
+                .AddSingleton(new WeightRepo())
                 ;
 
             // When all your required services are in the collection, build the container.
